@@ -17,8 +17,8 @@ public class PaymentService {
         this.paymentFeign = paymentFeign;
     }
 
-    @Retry(name = "paymentServiceCB", fallbackMethod = "paymentFallback")
    @CircuitBreaker(name = "paymentServiceCB", fallbackMethod = "paymentFallback")
+    @Retry(name = "paymentServiceCB", fallbackMethod = "paymentFallback")
     public PaymentModel paymentStatus(Integer orderNumber) {
         System.out.println("****************** RETRY PAYMENT method called "+attempt++ +" times "+" at "+new Date());
 
