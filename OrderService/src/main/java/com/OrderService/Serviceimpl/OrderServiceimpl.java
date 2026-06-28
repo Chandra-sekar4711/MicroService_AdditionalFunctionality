@@ -10,6 +10,8 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.example.DTO.CustomerModel.CustomerModel;
 import org.example.DTO.Payment.PaymentModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +19,7 @@ import java.math.BigDecimal;
 @Service
 public class OrderServiceimpl {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderServiceimpl.class);
 
     OrderRepository orderrepo;
     CustomerFeign customerfeign;
@@ -42,7 +45,7 @@ public class OrderServiceimpl {
 
     public OrderModel placeorder(OrderModel obj) {
 
-        System.out.println("***** ENTER placeorder *****");
+        log.info("ENTER placeorder");
 
         // ✅ Customer service call (CB protected)
         CustomerModel customer =

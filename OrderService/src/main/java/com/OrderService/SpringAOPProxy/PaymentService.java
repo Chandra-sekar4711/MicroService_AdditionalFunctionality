@@ -4,12 +4,15 @@ import com.OrderService.FeignClient.PaymentFeign;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.example.DTO.Payment.PaymentModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
 public class PaymentService {
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
     int attempt =1;
     private final PaymentFeign paymentFeign;
 
@@ -20,14 +23,14 @@ public class PaymentService {
     @Retry(name = "paymentServiceCB", fallbackMethod = "paymentFallback")
    @CircuitBreaker(name = "paymentServiceCB", fallbackMethod = "paymentFallback")
     public PaymentModel paymentStatus(Integer orderNumber) {
-        System.out.println("****************** RETRY PAYMENT method called "+attempt++ +" times "+" at "+new Date());
+        log.info("RETRY PAYMENT method called {} times at {}", attempt++, new Date());
 
         return paymentFeign.paymentstatus(String.valueOf(orderNumber));
     }
 
-    public PaymentModel paymentFallback(Integer orderNumber, Exception e) {
+    public PaymentModel paymentFallback(Integer orderNumber, Throwable e) {
 
-        System.out.println("🔥 PAYMENT FALLBACK TRIGGERED");
+        log.warn("PAYMENT FALLBACK TRIGGERED, orderNumber={}, error={}", orderNumber, e != null ? e.getMessage() : "unknown");
 
         PaymentModel fallback = new PaymentModel();
         fallback.setPaymentStatus("PAYMENT_FALLBACK");

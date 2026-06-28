@@ -3,11 +3,15 @@ package PaymentService.Serviceimpl;
 import PaymentService.FeignClient.NotificationFeign;
 import PaymentService.Model.PaymentModel;
 import PaymentService.Repository.PaymentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentServiceimpl {
+    private static final Logger log = LoggerFactory.getLogger(PaymentServiceimpl.class);
+
     @Autowired
     PaymentRepository payrepo;
 

@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+
+  consul:
+    image: hashicorp/consul:latest
+    container_name: consul
+    restart: unless-stopped
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    command: >
+      agent -server
+      -ui
+      -bootstrap-expect=1
+      -client=0.0.0.0
+      -data-dir=/consul/data
+    volumes:
+      - consul_data:/consul/data
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    restart: unless-stopped
+    user: root
+    ports:
+      - "3200:3200"
+    command: -config.file=/etc/tempo-config.yaml
+    volumes:
+      - ./tempo-config.yaml:/etc/tempo-config.yaml
+      - tempo_data:/tmp/tempo
+    depends_on:
+      - loki
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: unless-stopped
+    command:
+      - run
+      - /etc/alloy/config.alloy
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy
+      - D:/D/Learning/MicroService_AdditionalFunctionality/logs:/var/log/orders
+    ports:
+      - "12345:12345"
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - loki
+      - tempo
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - loki
+      - tempo
+
+volumes:
+  consul_data:
+  grafana_data:
+  tempo_data:

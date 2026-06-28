@@ -4,13 +4,16 @@ import com.OrderService.FeignClient.CustomerFeign;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.example.DTO.CustomerModel.CustomerModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
 public class CustomerService {
-       int attempt =1;
+    private static final Logger log = LoggerFactory.getLogger(CustomerService.class);
+    int attempt =1;
     private final CustomerFeign customerFeign;
 
     public CustomerService(CustomerFeign customerFeign) {
@@ -24,7 +27,7 @@ public class CustomerService {
 
     public CustomerModel customerFallback(Integer customerId, Exception e) {
 
-        System.out.println("🔥 CUSTOMER FALLBACK TRIGGERED");
+        log.warn("CUSTOMER FALLBACK TRIGGERED, customerId={}, error={}", customerId, e.getMessage());
 
         CustomerModel fallback = new CustomerModel();
         fallback.setId(0);
@@ -38,7 +41,7 @@ public class CustomerService {
 
     @Retry(name = "customerServiceRT",fallbackMethod = "customerFallback")
     public CustomerModel customerretry_chceck(Integer customerId) {
-        System.out.println("***************   RETRY CUSTOMER method called "+attempt++ +" times "+" at "+new Date());
+        log.info("RETRY CUSTOMER method called {} times at {}", attempt++, new Date());
         return customerFeign.simulateretry(customerId);
     }
 
