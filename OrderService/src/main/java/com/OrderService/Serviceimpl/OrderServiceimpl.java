@@ -12,12 +12,15 @@ import org.example.DTO.CustomerModel.CustomerModel;
 import org.example.DTO.Payment.PaymentModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @Service
 public class OrderServiceimpl {
+    @Value("${server.port}")
+    private String port;
 
     private static final Logger log = LoggerFactory.getLogger(OrderServiceimpl.class);
 
@@ -45,8 +48,8 @@ public class OrderServiceimpl {
 
     public OrderModel placeorder(OrderModel obj) {
 
-        log.info("ENTER placeorder");
-
+        log.info("ENTER placeorder ");
+        log.info("=========>Handled by OrderService instance on port {}", port);
         // ✅ Customer service call (CB protected)
         CustomerModel customer =
                 customerService.getCustomerById(obj.getCustomerId());
